@@ -169,8 +169,7 @@ function startTextPlacement() {
     }
 
     isTextPlacementMode = true;
-    canvas.style.cursor = 'text';
-    
+
     // Add visual feedback
     document.querySelector('.canvas-tooltip').style.display = 'block';
     document.querySelector('.canvas-tooltip').innerText = '点击画布放置文字';
@@ -179,7 +178,6 @@ function startTextPlacement() {
 
 function cancelTextPlacement() {
     isTextPlacementMode = false;
-    canvas.style.cursor = 'default';
     canvas.classList.remove('text-placement-mode');
     
     if (tempTextElement) {
@@ -216,7 +214,6 @@ function placeText(e) {
   // Reset
   document.getElementById('text-input').value = '';
   isTextPlacementMode = false;
-  canvas.style.cursor = 'default';
   canvas.classList.remove('text-placement-mode');
   document.querySelector('.canvas-tooltip').style.display = 'none';
 }

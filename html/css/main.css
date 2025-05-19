@@ -350,6 +350,7 @@ label {
 
 canvas.text-placement-mode {
     border: 2px dashed var(--primary-color) !important;
+    cursor: text !important; /* Force text cursor */
 }
 
 .canvas-tooltip {
