@@ -89,7 +89,7 @@ async function epdWriteImage(step = 'bw') {
 
   for (let i = 0; i < data.length; i += chunkSize) {
     let currentTime = (new Date().getTime() - startTime) / 1000.0;
-    setStatus(`${step == 'bw' ? '黑白' : '红色'}块: ${chunkIdx+1}/${count+1}, 总用时: ${currentTime}s`);
+    setStatus(`${step === 'bw' ? '黑白' : (step === 'bwry' ? '四色' : '红色')}块: ${chunkIdx+1}/${count+1}, 总用时: ${currentTime}s`);
     const payload = [
       (step == 'bw' ? 0x0F : 0x00) | ( i == 0 ? 0x00 : 0xF0),
       ...data.slice(i, i + chunkSize),
@@ -159,8 +159,12 @@ async function sendimg() {
       await epdWrite(driver === "04" ? 0x24 : 0x13, canvas2bytes(canvas, 'bw'));
     }
   } else {
-    await epdWriteImage('bw');
-    if (mode.startsWith('bwr')) await epdWriteImage('red');
+    if (mode.startsWith('bwry')){
+      await epdWriteImage('bw');
+    }else{
+      await epdWriteImage('bw');
+      if (mode.startsWith('bwr')) await epdWriteImage('red');
+    }
   }
 
   await write(EpdCmd.REFRESH);
@@ -373,7 +377,9 @@ function convert_dithering() {
   const mode = document.getElementById('dithering').value;
   if (mode === '') return;
 
-  if (mode.startsWith('bwr')) {
+  if (mode.startsWith('bwry')) {
+    ditheringCanvasByPalette(canvas, bwryPalette, mode);
+  } else if (mode.startsWith('bwr')) {
     ditheringCanvasByPalette(canvas, bwrPalette, mode);
   } else {
     dithering(ctx, canvas.width, canvas.height, parseInt(document.getElementById('threshold').value), mode);

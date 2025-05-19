@@ -1,3 +1,10 @@
+const bwryPalette = [
+  [0, 0, 0, 255],       // Black
+  [255, 255, 255, 255], // White
+  [255, 0, 0, 255],     // Red
+  [255, 255, 0, 255]    // Yellow
+];
+
 const bwrPalette = [
   [0, 0, 0, 255],
   [255, 255, 255, 255],
@@ -92,17 +99,65 @@ function canvas2bytes(canvas, step = 'bw', invert = false) {
   for (let y = 0; y < canvas.height; y++) {
     for (let x = 0; x < canvas.width; x++) {
       const i = (canvas.width * y + x) * 4;
-      if (step === 'bw') {
-        buffer.push(imageData.data[i] === 0 && imageData.data[i+1] === 0 && imageData.data[i+2] === 0 ? 0 : 1);
-      } else {
-        buffer.push(imageData.data[i] > 0 && imageData.data[i+1] === 0 && imageData.data[i+2] === 0 ? 0 : 1);
-      }
+      const r = imageData.data[i];
+      const g = imageData.data[i + 1];
+      const b = imageData.data[i + 2];
 
-      if (buffer.length === 8) {
-        const data = parseInt(buffer.join(''), 2);
-        arr.push(invert ? ~data : data);
-        buffer = [];
+      if (step === 'bwry') {
+        // 四色模式：黑(00)、白(01)、黄(10)、红(11)
+        let pixelBits;
+        if (r < 50 && g < 50 && b < 50) {
+          pixelBits = 0b00; // 黑色
+        } else if (r > 200 && g > 200 && b > 200) {
+          pixelBits = 0b01; // 白色
+        } else if (r > 200 && g > 200 && b < 50) {
+          pixelBits = 0b10; // 黄色
+        } else if (r > 200 && g < 50 && b < 50) {
+          pixelBits = 0b11; // 红色
+        } else {
+          pixelBits = 0b01; // 默认白色
+        }
+        buffer.push(pixelBits);
+
+        // 每4个像素（8 bits）合并为1字节
+        if (buffer.length === 4) {
+          const byte = (buffer[0] << 6) | (buffer[1] << 4) | (buffer[2] << 2) | buffer[3];
+          arr.push(invert ? ~byte & 0xFF : byte);
+          buffer = [];
+        }
+      } else {
+        // 黑白或红色模式
+        let pixelValue;
+        if (step === 'bw') {
+          pixelValue = (r === 0 && g === 0 && b === 0) ? 0 : 1;
+        } else {
+          pixelValue = (r > 0 && g === 0 && b === 0) ? 0 : 1;
+        }
+        buffer.push(pixelValue);
+
+        if (buffer.length === 8) {
+          const byte = parseInt(buffer.join(''), 2);
+          arr.push(invert ? ~byte : byte);
+          buffer = [];
+        }
       }
+    }
+  }
+
+  if (buffer.length > 0) {
+    if (step === 'bwry') {
+      // 四色模式：填充白色(01)至4个像素
+      while (buffer.length < 4) {
+        buffer.push(0b01);
+      }
+      const byte = (buffer[0] << 6) | (buffer[1] << 4) | (buffer[2] << 2) | buffer[3];
+      arr.push(invert ? ~byte & 0xFF : byte);
+    } else {
+      while (buffer.length < 8) {
+        buffer.push(1);
+      }
+      const byte = parseInt(buffer.join(''), 2);
+      arr.push(invert ? ~byte : byte);
     }
   }
   return arr;
