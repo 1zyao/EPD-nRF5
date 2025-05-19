@@ -348,9 +348,39 @@ label {
     border-bottom: 1px dotted #AAA;
 }
 
+canvas.text-placement-mode {
+    border: 2px dashed var(--primary-color) !important;
+}
+
+.canvas-tooltip {
+    display: none;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.canvas-tools {
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.text-tools {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .flex-container {
         flex-direction: column;
+    }
+
+    .canvas-tools.flex-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .canvas-tools .flex-group {
+        justify-content: center;
+        width: 100%;
     }
 
     .left-controls,
