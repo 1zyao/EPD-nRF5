@@ -47,6 +47,7 @@ typedef enum
     EPD_UC8176_420_BWR = 3,
     EPD_SSD1619_420_BWR = 2,
     EPD_SSD1619_420_BW = 4,
+    EPD_4IN37G_437_BWRY = 5,
 } epd_model_id_t;
 
 typedef struct
